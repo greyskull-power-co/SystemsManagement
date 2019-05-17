@@ -1,3 +1,6 @@
+#note that these are meant to live in E:\scripts and your import files live in E:\imports
+#modify as necessary
+
 #1. open a powershell window with administrative privileges and run the following
 #First create a secure password for connecting to the email notification account.
 #This file needs to live in the same folder as the other scripts!
