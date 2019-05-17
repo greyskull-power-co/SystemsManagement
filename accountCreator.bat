@@ -1,1 +1,1 @@
-powershell -ExecutionPolicy ByPass -File E:\scripts\StudentAccountCreator.ps1
+powershell -ExecutionPolicy ByPass -File E:\scripts\studentAccountCreator.ps1
