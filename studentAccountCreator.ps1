@@ -1,23 +1,17 @@
 #.csv file must be in the format:
 #USERID,FirstName,LastName,YOG
-
-#set a user temporary password
-$temporaryPW = “yourTempPW“
-$localDomain = “your.domain”
-#ex. school.priv
-
-$elementaryPath = "OU=" + $_.yog + ",OU=Elem Student,OU=Student,DC=your,DC=domain”
-$612path = "OU=" + $_.yog + ",OU=Student,DC=eps,DC=priv"
-
 #if the import is from the current day, proceed
 if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     $yest = Get-Content "E:\imports\yesterday.txt"
     $toda = Get-Content "E:\imports\today.txt"
+    $temporaryPW = "easton1234"
+    $localDomain = "@eps.priv"
+    $addToGroup = "students"
 
 #find the differences between today, and yesterday, send them to a text file
     $diff = "E:\scripts\diff.txt"
     $toda | Where-Object { $_ -notin $yest} > $diff
-    
+
 #modify that text file to become a csv file with headers
     "uid,fname,lname,yog`n" + (Get-Content $diff | Out-String) | Set-Content $diff
     Copy-Item $diff "E:\scripts\diff.csv"
@@ -48,35 +42,37 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
 #otherwise, just set one $path variable
 
     if($_.yog -gt $elementary) {
-        $path = $elementaryPath
+        $path = "OU=" + $_.yog + ",OU=Elementary Students,OU=Students,DC=eps,DC=priv"
     }
     else {
-        $path = $612path
+        $path = "OU=" + $_.yog + ",OU=Students,DC=eps,DC=priv"
     }
 
 #if the student has a local ID, they are determined to be complete and will successfully add to active directory
     if($localId){
         New-ADUser -Name $name `
-        -GivenName $givenName `
-        -Surname $surName `
-        -SamAccountName  $samAcctName `
-        -UserPrincipalName  $upn `
-        -Path $path `
-        -AccountPassword (ConvertTo-SecureString $temporaryPW -AsPlainText -force) -Enabled $true
+         -GivenName $givenName `
+         -Surname $surName `
+         -SamAccountName  $samAcctName `
+         -UserPrincipalName  $upn `
+         -Path $path `
+         -AccountPassword (ConvertTo-SecureString $temporaryPW -AsPlainText -force) -Enabled $true
+
+        Add-ADGroupMember -Identity $addToGroup -Members $samAcctName
 
 #An event log is written
-    Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 10 -EntryType Information -Message "Added $name : $samAcctName"
+        Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 10 -EntryType Information -Message "Added $name : $samAcctName"
 
 #Send an email of success here
-    $successEmail = "E:\scripts\successEmail.ps1"
-    &$successEmail
+        $successEmail = "E:\scripts\successEmail.ps1"
+        &$successEmail
 
-    }
+}
 #if the student does NOT have a local ID, they are determined incomplete and a warning log is written
     if(!$localId){
         Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 10 -EntryType Warning -Message "No user ID for $name : could not create!"
     }
-    }
+}
 #rotate out the old files, not necessary but nice to look at in case of an issue
     Remove-Item -Path "E:\imports\sixDaysAgo.txt"
     Rename-Item -Path "E:\imports\fiveDaysAgo.txt" -NewName "sixDaysAgo.txt"
@@ -89,7 +85,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
 }else {
 #file from SIS ftp is not from today - file an error log and send email to tech team
     Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 12 -EntryType Error -Message "today's ftp file is not from today"
-    
+
 #FAILURE EMAIL HERE
     $errorEmail = "E:\scripts\errorEmail.ps1"
     &$errorEmail
