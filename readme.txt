@@ -1,4 +1,5 @@
 #note that these are meant to live in E:\scripts and your import files live in E:\imports
+#designed for powershell v.5.1
 #modify as necessary
 
 #1. open a powershell window with administrative privileges and run the following
