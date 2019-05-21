@@ -4,6 +4,8 @@
 if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     $yest = Get-Content "E:\imports\yesterday.txt"
     $toda = Get-Content "E:\imports\today.txt"
+
+#configure your temporary password, domain, and a group of your choosing ie. student
     $temporaryPW = "tempPasswordHere"
     $localDomain = "@domain.priv"
     $addToGroup = "student"
@@ -21,14 +23,16 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     $currentMonth = get-date -UFormat "%m"
 
 #this is the grade year split adjustment
-
+#greater than july
     if($currentMonth -gt 7) {
         $monthAdjustment = 8
     }
+#less than july
     if($currentMonth -le 7){
         $monthAdjustment = 7
     }
 
+#calculate the YOG split from grade 5 to grade 6
     $elementary = [int]$currentYear + [int]$monthAdjustment
     $csv | ForEach-Object {
     $upn = $_.fname.ToLower().SubString(0,1) + $_.lname.ToLower().SubString(0,1) + $_.uid + $localDomain
@@ -60,6 +64,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
          -Path $path `
          -AccountPassword (ConvertTo-SecureString $temporaryPW -AsPlainText -force) -Enabled $true
 
+#add the user to the specified group
         Add-ADGroupMember -Identity $addToGroup -Members $samAcctName
 
 #An event log is written
@@ -85,7 +90,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     Rename-Item -Path "E:\imports\today.txt" -NewName "yesterday.txt"
 
 }else {
-#file from SIS ftp is not from today - file an error log and send email to tech team
+#file from SIS ftp is not from today - file an error log ID 12 and send email to tech team
     Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 12 -EntryType Error -Message "today's ftp file is not from today"
 
 #FAILURE EMAIL HERE
