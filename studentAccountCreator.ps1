@@ -4,13 +4,9 @@
 if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     $yest = Get-Content "E:\imports\yesterday.txt"
     $toda = Get-Content "E:\imports\today.txt"
-
-#this will generate a temporary password for the accounts
-    $temporaryPW = "tempPassword"
-#change this to your domain
-    $localDomain = "@yourdomain.priv"
-#change this to what group you want the users in
-    $addToGroup = "securityGroup"
+    $temporaryPW = "tempPasswordHere"
+    $localDomain = "@domain.priv"
+    $addToGroup = "student"
 
 #find the differences between today, and yesterday, send them to a text file
     $diff = "E:\scripts\diff.txt"
@@ -25,7 +21,6 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     $currentMonth = get-date -UFormat "%m"
 
 #this is the grade year split adjustment
-#if it's before or after July, make the appropriate YOG class calculation
 
     if($currentMonth -gt 7) {
         $monthAdjustment = 8
@@ -43,14 +38,16 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     $surName = $_.lname
     $samAcctName = $_.fname.ToLower().SubString(0,1) + $_.lname.ToLower().SubString(0,1) + $_.uid
 
-#optional - if you would like to separate your org units by YOG
-#otherwise, just set one $path variable
+#configure the path to match your active directory OU setup
+#this will (depending on the month) decide if your org is pk-5 or 6-12
+#if you do not want to separate elementary from upper levels, simply use one path variable
+#$path = "OU=" + $_.yog + ",OU=Student,DC=domain,DC=priv"
 
     if($_.yog -gt $elementary) {
-        $path = "OU=" + $_.yog + ",OU=ElemStudent,OU=Student,DC=yourdomain,DC=priv"
+        $path = "OU=" + $_.yog + ",OU=Elem Student,OU=Student,DC=domain,DC=priv"
     }
     else {
-        $path = "OU=" + $_.yog + ",OU=Student,DC=yourdomain,DC=priv"
+        $path = "OU=" + $_.yog + ",OU=Student,DC=domain,DC=priv"
     }
 
 #if the student has a local ID, they are determined to be complete and will successfully add to active directory
