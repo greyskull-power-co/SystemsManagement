@@ -35,6 +35,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
 #calculate the YOG split from grade 5 to grade 6
     $elementary = [int]$currentYear + [int]$monthAdjustment
     $csv | ForEach-Object {
+#we lowercase the first and last name, then take the initials and add them to a lasid to give us something like js2012345
     $upn = $_.fname.ToLower().SubString(0,1) + $_.lname.ToLower().SubString(0,1) + $_.uid + $localDomain
     $localId = [int]$_.uid
     $name = $_.fname + " " + $_.lname
