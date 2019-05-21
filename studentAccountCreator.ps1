@@ -82,7 +82,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
         Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 10 -EntryType Warning -Message "No user ID for $name : could not create!"
     }
 }
-#rotate out the old files, not necessary but nice to look at in case of an issue
+#rotate out the old files
     Remove-Item -Path "E:\imports\sixDaysAgo.txt"
     Rename-Item -Path "E:\imports\fiveDaysAgo.txt" -NewName "sixDaysAgo.txt"
     Rename-Item -Path "E:\imports\fourDaysAgo.txt" -NewName "fiveDaysAgo.txt"
