@@ -64,7 +64,8 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
          -UserPrincipalName  $upn `
          -Path $path `
          -AccountPassword (ConvertTo-SecureString $temporaryPW -AsPlainText -force) -Enabled $true
-
+#change pw at first login
+        Set-ADUser -ChangePasswordAtLogon $true -Identity $samAcctName
 #add the user to the specified group
         Add-ADGroupMember -Identity $addToGroup -Members $samAcctName
 
