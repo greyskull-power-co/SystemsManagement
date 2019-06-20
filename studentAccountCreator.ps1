@@ -8,6 +8,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
 #configure your temporary password, domain, and a group of your choosing ie. student
     $temporaryPW = "tempPasswordHere"
     $localDomain = "@domain.priv"
+    $emailDomain = "@possibly.different.com"
     $addToGroup = "student"
 
 #find the differences between today, and yesterday, send them to a text file
@@ -37,6 +38,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
     $csv | ForEach-Object {
 #we lowercase the first and last name, then take the initials and add them to a lasid to give us something like js2012345
     $upn = $_.fname.ToLower().SubString(0,1) + $_.lname.ToLower().SubString(0,1) + $_.uid + $localDomain
+    $email = $_.fname.ToLower().SubString(0,1) + $_.lname.ToLower().SubString(0,1) + $_.uid + $emailDomain
     $localId = [int]$_.uid
     $name = $_.fname + " " + $_.lname
     $givenName = $_.fname
@@ -62,6 +64,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
          -Surname $surName `
          -SamAccountName  $samAcctName `
          -UserPrincipalName  $upn `
+         -EmailAddress  $email `
          -Path $path `
          -AccountPassword (ConvertTo-SecureString $temporaryPW -AsPlainText -force) -Enabled $true
 #change pw at first login
@@ -72,9 +75,7 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
 #An event log is written
         Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 10 -EntryType Information -Message "Added $name : $samAcctName"
 
-#Send an email of success here
-        $successEmail = "E:\scripts\successEmail.ps1"
-        &$successEmail
+
 
 }
 #if the student does NOT have a local ID, they are determined incomplete and a warning log is written
@@ -82,6 +83,9 @@ if( (Get-Date).day - ((ls E:\imports\today.txt).LastWriteTime).day -eq 0 ){
         Write-EventLog -LogName "Application" -Source "AccountCreator" -EventID 10 -EntryType Warning -Message "No user ID for $name : could not create!"
     }
 }
+#Send an email of success here
+        $successEmail = "E:\scripts\successEmail.ps1"
+        &$successEmail
 #rotate out the old files
     Remove-Item -Path "E:\imports\sixDaysAgo.txt"
     Rename-Item -Path "E:\imports\fiveDaysAgo.txt" -NewName "sixDaysAgo.txt"
