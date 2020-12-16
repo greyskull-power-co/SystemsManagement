@@ -1,7 +1,9 @@
+#use at your own risk!
 #find your county from the county list here https://alerts.weather.gov/
 #choose the relevant ATOM rss link, ex here shown hawaii
 #https://alerts.weather.gov/cap/wwaatmget.php?x=HIC001&y=0
-#set up as a scheduled task, run at 7pm. this is used to protect desktops from file corruption. Laptops do not need, they have a battery!
+#set up as a scheduled task, run at 7pm. 
+#this is used to protect desktops from file corruption due to power loss. Laptops do not need, they have a battery!
 
 wget "https://alerts.weather.gov/cap/wwaatmget.php?x=HIC001&y=0" -OutFile C:\Users\Public\weather.html
 $weatherWarn = "C:\Users\Public\weather.html"
