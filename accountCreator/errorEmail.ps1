@@ -2,7 +2,7 @@
 #this is your 'dummy' email or a noreply you preconfigure
 $User = "noreply@gmail.com”
 #get your hashed email password - must be retrieved from the same account that hashed the password
-$File = "E:\scripts\emailpw.txt"
+$File = "locationOfYourHashedEmailPW\emailpw.txt"
 #decrypt email password
 $cred=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, (Get-Content $File | ConvertTo-SecureString)
 #send this to your helpdesk or tech team, separated by commas
